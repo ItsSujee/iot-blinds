@@ -1,0 +1,71 @@
+esphome:
+  name: esp32
+  platform: ESP32
+  board: nodemcu-32s
+
+wifi:
+  ssid: ""
+  password: ""
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esp32 Fallback Hotspot"
+    password: ""
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: "PASSWORD"
+
+ota:
+  password: "PASSWORD"
+
+output:
+  - platform: gpio
+    id: 'IN1'
+    pin: GPIO25
+  - platform: gpio
+    id: 'IN2'
+    pin: GPIO26
+
+switch:
+  - platform: output
+    name: "IN1"
+    output: 'IN1'
+    id: IN1_switch
+  - platform: output
+    name: "IN2"
+    output: 'IN2'
+    id: IN2_switch
+
+cover:
+  - platform: template
+    name: "Blinds"
+    id: blinds
+    optimistic: true
+    open_action:
+      - switch.turn_off: IN2_switch
+      - switch.turn_on: IN1_switch
+
+      - delay: 99s
+
+      - switch.turn_off: IN1_switch
+    close_action:
+      - switch.turn_off: IN1_switch
+      - switch.turn_on: IN2_switch
+
+      - delay: 99s
+
+      - switch.turn_off: IN2_switch
+    stop_action:
+      - switch.turn_off: IN1_switch
+      - switch.turn_off: IN2_switch
+
+sensor:
+  - platform: pulse_counter
+    name: "Pulse Counter"
+    pin: GPIO19
